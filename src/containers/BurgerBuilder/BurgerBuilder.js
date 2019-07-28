@@ -17,16 +17,20 @@ const INGREDIENTS_PRICES = {
 class BurgerBuilder extends Component {
 
     state = {
-        ingredients: {
-            salad: 0,
-            bacon: 0,
-            meat: 0,
-            cheese: 0
-        },
+        ingredients: null,
         totalPrice: 4,
         purchasable: false,
         purchasing: false,
-        loading: false
+        loading: false,
+        error:false
+    }
+
+    componentDidMount() {
+        axios.get('ingredients/').then((response) => {
+            this.setState({ ingredients: response.data[0] })
+        }).catch((err)=>{
+            this.setState({error:true})
+        })
     }
 
     updatePurchasable() {
@@ -91,7 +95,7 @@ class BurgerBuilder extends Component {
             },
             deliveryMethod: 'fastest'
         }
-        axios.post('/orders', order)
+        axios.post('build/orders', order)
             .then(response => {
                 this.setState({ loading: false, purchasing: false })
             })
@@ -105,19 +109,10 @@ class BurgerBuilder extends Component {
         for (let key in disabledInfo) {
             disabledInfo[key] = (disabledInfo[key] <= 0)
         }
-        let orderSummary = <OrderSummary
-            price={this.state.totalPrice}
-            modalClosed={this.modalHandler}
-            continueClicked={this.purchaseContinueHandler}
-            ingredients={this.state.ingredients} />;
-        if (this.state.loading) {
-            orderSummary = <Spinner />
-        }
-        return (
-            <Auxilary>
-                <Modal show={this.state.purchasing} modalClosed={this.modalHandler}>
-                    {orderSummary}
-                </Modal>
+        let orderSummary = null;
+        let burger =this.state.error?<p>Ingredients can't be loaded</p>: <Spinner/>
+        if(this.state.ingredients){
+            burger = (<Auxilary>
                 <Burger ingredients={this.state.ingredients} />
                 <BuildControls
                     price={this.state.totalPrice}
@@ -126,9 +121,26 @@ class BurgerBuilder extends Component {
                     purchasable={this.state.purchasable}
                     purchasing={this.purchaseHandler}
                     addIngredient={this.addIngredientsHandler} />
+            </Auxilary>);
+            orderSummary = <OrderSummary
+            price={this.state.totalPrice}
+            modalClosed={this.modalHandler}
+            continueClicked={this.purchaseContinueHandler}
+            ingredients={this.state.ingredients} />;
+        }
+        if (this.state.loading) {
+            orderSummary = <Spinner />
+        }
+   
+        return (
+            <Auxilary>
+                <Modal show={this.state.purchasing} modalClosed={this.modalHandler}>
+                    {orderSummary}
+                </Modal>
+                {burger}
             </Auxilary>
         );
     }
 }
 
-export default withErrorHanlder(BurgerBuilder,axios);
+export default withErrorHanlder(BurgerBuilder, axios);
