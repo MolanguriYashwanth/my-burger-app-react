@@ -27,7 +27,9 @@ class BurgerBuilder extends Component {
 
     componentDidMount() {
         axios.get('ingredients/').then((response) => {
-            this.setState({ ingredients: response.data[0] })
+            var responseOutput = response.data[0]; 
+            delete responseOutput['_id'];
+            this.setState({ ingredients: responseOutput })
         }).catch((err)=>{
             this.setState({error:true})
         })
@@ -81,28 +83,19 @@ class BurgerBuilder extends Component {
 
         this.setState({ loading: true });
         //alert('You Continue!');
-        const order = {
-            ingredients: this.state.ingredients,
-            price: this.state.totalPrice,
-            customer: {
-                name: 'sai',
-                address: {
-                    street: 'Test street',
-                    zipCode: '24479',
-                    country: 'India'
-                },
-                email: 'test@j.com'
-            },
-            deliveryMethod: 'fastest'
-        }
-        axios.post('build/orders', order)
-            .then(response => {
-                this.setState({ loading: false, purchasing: false })
-            })
-            .catch(e => {
-                this.setState({ loading: false, purchasing: false })
-            });
+      
 
+        const queryParams=[];
+        for(let i in this.state.ingredients){
+            queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]))
+        }
+        queryParams.push('price='+this.state.totalPrice);
+        const queryString = queryParams.join('&');
+        this.props.history.push({
+            pathname:'./checkout',
+            search:'?' +queryString
+        })
+            //'./checkout')
     }
     render() {
         const disabledInfo = { ...this.state.ingredients };
