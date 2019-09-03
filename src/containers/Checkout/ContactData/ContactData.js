@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {connect} from "react-redux";
 import Button from "../../../components/UI/Button/Button";
 import classes from "./ContactData.css";
 import axios from "../../../axios-orders";
@@ -181,4 +182,10 @@ class ContactData extends Component {
         )
     }
 }
-export default withErrorHanlder(ContactData, axios);
+const mapStateToProps = (state, ownProps) => {
+    return {
+        ingredients: state.ingredients,
+        totalPrice:state.totalPrice
+    }
+}
+export default connect(mapStateToProps)(withErrorHanlder(ContactData, axios));

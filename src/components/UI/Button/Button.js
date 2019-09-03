@@ -4,7 +4,7 @@ import classes from "./Button.css";
 const button = (props)=>(
     <button 
     className={[classes.Button,classes[props.btnType]].join(' ')}
-    disabled={!props.formIsValid}
+    disabled={props.formIsValid?!props.formIsValid:false}
     onClick={props.clicked}>{props.children}</button>
 )
 
