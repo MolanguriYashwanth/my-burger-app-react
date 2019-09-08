@@ -1,5 +1,5 @@
 import * as actionTypes from '../actions/actions';
-
+import {updateObject} from "../utility";
 const initialState={
     ingredients: null,
     error:false,
@@ -15,34 +15,31 @@ const reducer = (state=initialState,action)=>{
     switch(action.type){
 
         case actionTypes.FETCH_INGREDIENTS_FAILED:
-            return {
-                ...state,
-                error:true
-            }
+            return updateObject(state,{error:true})
+           
         case actionTypes.SET_INGREDIENTS:
-            return {
-                ...state,
+            return updateObject(state,{
                 ingredients:action.ingredients,
-                error:false
-            }    
+                error:false,
+                totalPrice: 4
+            })
+             
         case actionTypes.ADD_INGREDIENT:
-            return {
-                    ...state,
-                    ingredients:{
-                        ...state.ingredients,
-                        [action.ingredientName]:state.ingredients[action.ingredientName]+1
-                    },
-                    totalPrice:state.totalPrice + INGREDIENTS_PRICES[action.ingredientName]
+            const updatedIngredient = {[action.ingredientName]:state.ingredients[action.ingredientName]+1}
+            const updatedIngredients = updateObject(state.ingredients,updatedIngredient);
+            const updatedState = {
+                ingredients:updatedIngredients,
+                totalPrice:state.totalPrice + INGREDIENTS_PRICES[action.ingredientName]
             }
+            return updateObject(state,updatedState)
         case actionTypes.REMOVE_INGREDIENT:
-            return{
-                ...state,
-                ingredients:{
-                    ...state.ingredients,
-                    [action.ingredientName]:state.ingredients[action.ingredientName]-1
-                },
-                totalPrice:state.totalPrice - INGREDIENTS_PRICES[action.ingredientName]
-            }    
+                const decrementIngredient = {[action.ingredientName]:state.ingredients[action.ingredientName]-1}
+                const decrementedIngredients = updateObject(state.ingredients,decrementIngredient);
+                const updateddecrementState = {
+                    ingredients:decrementedIngredients,
+                    totalPrice:state.totalPrice - INGREDIENTS_PRICES[action.ingredientName]
+                }
+                return updateObject(state,updateddecrementState)    
         default:
             return state;    
 

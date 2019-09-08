@@ -5,8 +5,9 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import { createStore, applyMiddleware, compose } from 'redux';
-import reducer from "./store/reducers/burgerBuilder";
+import { createStore, applyMiddleware, compose,combineReducers } from 'redux';
+import burgerReducer from "./store/reducers/burgerBuilder";
+import orderReducer from "./store/reducers/order";
 import thunk from "redux-thunk";
 const composeEnhancers =
     typeof window === 'object' &&
@@ -18,6 +19,10 @@ const enhancer = composeEnhancers(
     applyMiddleware(thunk),
     // other store enhancers if any
 );
+const reducer = combineReducers({
+    burger:burgerReducer,
+    order:orderReducer
+})
 const store = createStore(
     reducer,
     enhancer
