@@ -7,11 +7,11 @@ export const authStart = () => {
     }
 }
 
-export const authSuccess = (authData,username) => {
+export const authSuccess = (authData, username) => {
     return {
         type: actionTypes.AUTH_SUCCESS,
         authData: authData,
-        username:username
+        username: username
     }
 }
 
@@ -21,24 +21,70 @@ export const authFailed = (error) => {
         error: error
     }
 }
+export const checkAuthTimeout = (expirationTime) => {
+    let timeoutTime=3000;
+    if(expirationTime==="24h"){
+        timeoutTime =3000;
+    }
+    return dispatch => {
+        setTimeout(() => {
+            dispatch(logout());
+        }, timeoutTime*1000)
+    }
+}
+export const logout = ()=>{
+    localStorage.removeItem('token');
+    //localStorage.removeItem('expirationDate');
+    localStorage.removeItem('username');
+    return {
+        type:actionTypes.AUTH_LOGOUT
+    }
+}
 
-
-export const auth = (email,password,isSignUp) => {
+export const auth = (email, password, isSignUp) => {
     return dispatch => {
         dispatch(authStart());
-        const authData ={
-            "password":password, 
-            "username":email}
+        const authData = {
+            "password": password,
+            "username": email
+        }
         let url = 'http://localhost:8085/authentication/login';
-        console.log('isSignUp',isSignUp);
-        if(isSignUp){
-            axios.post(url,authData).then((response) => {
-                console.log('authResponse',response);
-                dispatch(authSuccess(response.data,response.data.config.data.username))
+        console.log('isSignUp', isSignUp);
+        if (!isSignUp) {
+            axios.post(url, authData).then((response) => {
+                let configObj = JSON.parse(response.config.data);
+                //const expirationDate = new Date(new Date().getTime() + 60*100);
+                localStorage.setItem('token',response.data.token);
+                //localStorage.setItem('expirationDate',expirationDate);
+                localStorage.setItem('username',configObj['username'])
+                dispatch(authSuccess(response.data, configObj['username']))
+                //dispatch(checkAuthTimeout(response.data.expiresIn))
             }).catch((err) => {
-                console.log('authFailed',err)
+                console.log('authFailed', err)
                 dispatch(authFailed(err))
             })
-        }    
+        }
+    }
+}
+
+
+export const setAuthRedirectPath = (path) => {
+return{
+    type:actionTypes.AUTH_REDIRECT_PATH,
+    path:path
+}
+}
+
+
+export const authCheckState = () =>{
+    return dispatch =>{
+        const token = localStorage.getItem('token');
+        //const expirationDate = localStorage.getItem('expirationDate');
+        const userId = localStorage.getItem('username');
+        if(!token){
+            dispatch(logout());
+        }else{
+            dispatch(authSuccess({token:token},userId))
+        }
     }
 }

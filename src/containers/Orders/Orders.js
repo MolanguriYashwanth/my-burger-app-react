@@ -13,7 +13,8 @@ class Orders extends Component {
     //         loading:true
     // }
     componentDidMount() {
-        this.props.fetchOrders()
+        console.log("userToken",this.props);
+        this.props.fetchOrders(this.props.userToken,this.props.userId)
         // axios.get('/build/getburgers').then((response) => {
         //     console.log('response',response.data);
         //     this.setState({loading:false,orders:response.data})
@@ -46,12 +47,14 @@ class Orders extends Component {
 const mapStateToProps = (state) => {
     return {
         orders: state.order.orders,
-        loading:state.order.loading
+        loading:state.order.loading,
+        userToken:state.auth.token,
+        userId:state.auth.userId
     }
 }
 const mapDispatchToProps = (dispatch) => {
     return {
-        fetchOrders: () => { dispatch(actions.fetchOrders()) }
+        fetchOrders: (token,userId) => { dispatch(actions.fetchOrders(token,userId)) }
     }
 }
 

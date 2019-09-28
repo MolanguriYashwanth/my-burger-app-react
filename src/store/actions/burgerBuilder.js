@@ -21,6 +21,7 @@ const setIngredients = (ingredients)=>{
     }
 }
 export const initingredients = ()=>{
+    //const AuthStr = 'Bearer ' + USER_TOKEN;
     return dispatch =>{
            axios.get('ingredients/').then((response) => {
             var responseOutput = response.data[0]; 

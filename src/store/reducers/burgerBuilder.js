@@ -4,6 +4,7 @@ const initialState={
     ingredients: null,
     error:false,
     totalPrice: 4,
+    building:false
 }
 const INGREDIENTS_PRICES = {
     salad: 0.4,
@@ -19,9 +20,15 @@ const reducer = (state=initialState,action)=>{
            
         case actionTypes.SET_INGREDIENTS:
             return updateObject(state,{
-                ingredients:action.ingredients,
+                ingredients:{
+                    salad:action.ingredients.salad,
+                    bacon:action.ingredients.bacon,
+                    cheese:action.ingredients.cheese,
+                    meat:action.ingredients.meat
+                },
                 error:false,
-                totalPrice: 4
+                totalPrice: 4,
+                building:false
             })
              
         case actionTypes.ADD_INGREDIENT:
@@ -29,6 +36,7 @@ const reducer = (state=initialState,action)=>{
             const updatedIngredients = updateObject(state.ingredients,updatedIngredient);
             const updatedState = {
                 ingredients:updatedIngredients,
+                building:true,
                 totalPrice:state.totalPrice + INGREDIENTS_PRICES[action.ingredientName]
             }
             return updateObject(state,updatedState)
@@ -37,6 +45,7 @@ const reducer = (state=initialState,action)=>{
                 const decrementedIngredients = updateObject(state.ingredients,decrementIngredient);
                 const updateddecrementState = {
                     ingredients:decrementedIngredients,
+                    building:true,
                     totalPrice:state.totalPrice - INGREDIENTS_PRICES[action.ingredientName]
                 }
                 return updateObject(state,updateddecrementState)    
